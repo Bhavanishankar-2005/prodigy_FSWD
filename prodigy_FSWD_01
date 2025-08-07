@@ -1,0 +1,34 @@
+def read_users():
+    users = {}
+    try:
+        with open("users.txt", "r") as f:
+            for line in f:
+                parts = line.strip().split("|")
+                if len(parts) == 3:
+                    username, hashed_password, role = parts
+                    users[username] = (hashed_password, role)
+    except FileNotFoundError:
+        pass
+    return users
+
+def write_user(username, hashed_password, role):
+    with open("users.txt", "a") as f:
+        f.write(f"{username}|{hashed_password}|{role}\n")
+
+def register(username, password, role="user"):
+    users = read_users()
+    if username in users:
+        return "Username already exists."
+    hashed = simple_hash(password)
+    write_user(username, hashed, role)
+    return "User registered successfully."
+
+def login(username, password):
+    users = read_users()
+    hashed = simple_hash(password)
+    if username in users and users[username][0] == hashed:
+        print("Login successful.")
+        return users[username][1]  # Return role
+    else:
+        print("Invalid credentials.")
+        return None
